@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="origin" name="referrer"> 
-        <title>Perudo Statistics</title>
+        <title>Perudo: Move Analysis</title>
         <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.2.1/echarts.esm.min.js" integrity="sha512-28PeTKuq+Mk6sheIW7nPonmKJtOVL36HCINPwVW+inm13i32bTF7GXJymgqE00am4Ia8tJd/jPoaWWY1s8zUOA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script type="module">
         
@@ -275,23 +275,23 @@
         </style>
     </head>
     <body>
-        <h1>Move Outcome</h1>
+        <h1>Perudo: Move Analysis</h1>
         <div class='data-input-container'>
             <h2 class='inputs-title'>Inputs</h2>
             <div class='init-set'>
-                <label for='init-set'>Your dices, comma separated</label>
+                <label for='init-set'>Enter your dices, comma separated</label>
                 <input id='init-set' value="" type='text'>
                 <div class='error'></div>
             </div>
             
             <div class='dice-number'>
-                <label for='dice-number'>Unknown dices (number)</label>
+                <label for='dice-number'>Number of unknown dices in the playfield (pure number, count all dices you don't own)</label>
                 <input id='dice-number' value='0' type='number' step='1'>
                 <div class='error'></div>
             </div>
             
             <div class='test-face'>
-                <label for='test-face'>Tested face</label>
+                <label for='test-face'>Face of the dice</label>
                 <input id='test-face' value='1' type='number' min='1' max='6' step='1'>
                 <input id='palifico' type='checkbox' name='palifico' value='palifico' class='palifico'>Palifico
                 <div class='error'></div>
