@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta content="origin" name="referrer"> 
+        <title>Perudo Statistics</title>
+        <script type="module">
+        
+            function roll(min, max) {
+                const rnd = Math.random() * 10000;
+                return ( parseInt( rnd.toFixed(0) ) % max ) + min;
+            }
+
+            function evalRound(distrib, rolls) {
+                
+                for ( let i = 0; i < rolls; i++ ) {
+                    const face = roll(0, 6);
+                    distrib[ face ] += 1;
+                }
+                
+                return distrib;
+            }
+            
+            function evalStats(known, rolls, test, options = {palifico: false}) {
+                const stats = {
+                    bets: [],
+                    dudo: [],
+                    calza: []
+                };
+                const n = rolls + known.length + 1;
+                const trials = 10000;
+                
+                for ( let j = 0; j < n; j++ ) {
+                    stats.bets.push(0);
+                    stats.dudo.push(0);
+                    stats.calza.push(0);
+                }
+                
+                for ( let i = 0; i < trials; i++ ) {
+                    const distrib = evalRound( [ 0, 0, 0, 0, 0, 0 ], rolls );
+                    
+                    for ( const face of known ) {
+                        distrib[ face ] ++;
+                    }
+                    
+                    if ( !options.palifico && test !== 0 ) {
+                        distrib[ test ] += distrib[ 0 ];
+                    }
+                    
+                    for ( let k = 0; k < n; k++ ) {
+                        if ( distrib[ test ] >= k ) {
+                            stats.bets[ k ]++;
+                            if ( distrib[ test ] === k ) {
+                                stats.calza[ k ]++;
+                            }
+                        } else {
+                            stats.dudo[ k ]++;
+                        }
+                    }
+                }
+                
+                for ( let j = 0; j < n; j++ ) {
+                    stats.bets[ j ] /= trials;
+                    stats.dudo[ j ] /= trials;
+                    stats.calza[ j ] /= trials;
+                }
+                
+                console.log( "For face " + (test+1) + " result are " );
+                console.log(stats);
+                
+                return stats;
+            }
+        
+            function parseInput(dataContainer) {
+                const knownRaw = dataContainer.querySelector('#init-set').value;
+                const unkownRaw = dataContainer.querySelector('#dice-number').value;
+                const testFaceRaw = dataContainer.querySelector('#test-face').value;
+                
+                const rolls = parseInt( unkownRaw );
+                if ( isNaN(rolls) ) {
+                    dataContainer.querySelector('.dice-number .error').textContent = 'Invalid number inserted';
+                    return;
+                }
+                
+                dataContainer.querySelector('.dice-number .error').textContent = '';
+                
+                const testFace = parseInt( testFaceRaw );
+                if ( isNaN(testFace) || testFace > 6 || testFace < 1 ) {
+                    dataContainer.querySelector('.test-face .error').textContent = 'Invalid face inserted. Required face between 1 and 6';
+                    return;
+                }
+                
+                dataContainer.querySelector('.test-face .error').textContent = '';
+                
+                const known = [];
+                
+                const knownStr = knownRaw.trim().split(',');
+                for ( const str of knownStr ) {
+                    const face = parseInt(str.trim());
+                    if ( isNaN(face) || face > 6 || face < 1 ) {
+                        dataContainer.querySelector('.init-set .error').textContent = str + ' is not a number between 1 and 6';
+                        return;
+                    }
+                    
+                    known.push( face - 1 );
+                }
+                
+                dataContainer.querySelector('.init-set .error').textContent = '';
+                
+                const options = {};
+                if ( dataContainer.querySelector('#palifico').checked ) {
+                    options.palifico = true;
+                }
+                
+                const stats = evalStats( known, rolls, testFace - 1, options );
+                console.log(stats);
+            }
+            
+            window.onload = function() {
+                const dataContainer = document.querySelector('.data-input-container');
+                dataContainer.oninput = parseInput.bind(null, dataContainer);
+            };
+        </script>
+        <!-- <script type="module" src='echarts.js'> -->
+        <style>
+            .data-input-container {
+                display: inline-block;
+                font-size: 20px;
+                width: 90%;
+                margin: 5%;
+            }
+            
+            .charts-container {
+                display: inline-block;
+                width: 90%;
+                margin: 5%;
+            }
+            
+            .init-set {
+                display: inline-block;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .init-set input, .init-set label {
+                display: inline-block;
+                width: 50%;
+            }
+            
+            .dice-number {
+                display: inline-block;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .dice-number input, .dice-number label {
+                display: inline-block;
+                width: 50%;
+            }
+            
+            .test-face {
+                display: inline-block;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .test-face input {
+                display: inline-block;
+                width: 40%;
+            }
+            
+            #palifico {
+                width: 30px;
+            }
+            
+            .test-face label {
+                display: inline-block;
+                width: 70%;
+            }
+            
+            h1 {
+                font-size: 32px;
+                text-align: center;
+            }
+            
+            .error {
+                display: inline-block;
+                background-color: red;
+                color: white;
+                width: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Move Outcome</h1>
+        <div class='data-input-container'>
+            <div class='init-set'>
+                <label for='init-set'>Your dices, comma separated</label>
+                <input id='init-set' value="" type='text'>
+                <div class='error'></div>
+            </div>
+            
+            <div class='dice-number'>
+                <label for='dice-number'>Unknown dices (number)</label>
+                <input id='dice-number' value='0' type='number' step='1'>
+                <div class='error'></div>
+            </div>
+            
+            <div class='test-face'>
+                <label for='test-face'>Tested face</label>
+                <input id='test-face' value='1' type='number' min='1' max='6' step='1'>
+                <input id='palifico' type='checkbox' name='palifico' value='palifico' class='palifico'>Palifico
+                <div class='error'></div>
+            </div>
+        </div>
+        <div class='charts-container'>
+            <canvas id="chart" width="600" height="600">
+            </canvas>
+        </div>
+    </body>
+</html>
